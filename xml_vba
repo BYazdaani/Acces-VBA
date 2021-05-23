@@ -1,0 +1,39 @@
+Dim cmd As New ADODB.Command, rs As New ADODB.Recordset
+Dim cnn As ADODB.Connection
+Set cnn = New ADODB.Connection
+cnn.ConnectionString = "DRIVER=SQL Server;SERVER=myServer;DATABASE=myDB;uid=myID;pwd=myPW;Trusted_Connection=Yes"
+cnn.Open cnn.ConnectionString
+
+Set cmd = New ADODB.Command
+With cmd
+    .ActiveConnection = cnn
+    .CommandType = adCmdStoredProc
+    .CommandText = myProc
+End With
+
+rs.CursorType = adOpenStatic
+rs.CursorLocation = adUseClient
+rs.LockType = adLockOptimistic
+rs.Open cmd
+
+Dim myXML As Variant
+
+If Not (rs.EOF And rs.BOF) Then
+    rs.MoveFirst
+    Do Until rs.EOF = True
+        myXML = myXML & rs.Fields(0)
+        rs.MoveNext
+    Loop
+End If
+
+'Create the Stream object
+Set objStream = CreateObject("ADODB.Stream")
+With objStream
+    .Type = 2 'Text
+    .Charset = "utf-8"
+    .Open
+    .WriteText myXML
+    .SaveToFile (filePath & myXMLFile)
+    .Close
+
+End With
