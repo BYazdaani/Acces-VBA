@@ -1,0 +1,47 @@
+ First, create an XML file containing the data in ADO's saved XML format. 
+ When you click the "Make XML File" button, the program uses the following
+ code to make such an XML file. It opens an ADO Recordset connected to 
+ a normal Access database file. It then creates an XML DOMDocument object 
+ and calls the Recordset's Save method, passing it the DOMDocument to 
+ save the Recordset's data into the document. It then calls the 
+ DOMDocument object's Save method to write the document's XML data into a file.
+ 
+
+Private Sub cmdMakeXmlFile_Click()
+Dim db_name As String
+Dim conn As ADODB.Connection
+Dim rs As ADODB.Recordset
+Dim dom_document As DOMDocument
+
+    ' Get the database's name.
+    db_name = txtDatabase.Text
+
+    ' Open the connection.
+    Set conn = New ADODB.Connection
+    conn.ConnectionString = _
+        "Provider=Microsoft.Jet.OLEDB.4.0;" & _
+        "Persist Security Info=False;" & _
+        "Data Source=" & db_name
+    conn.Open
+
+    ' Open the Recordset.
+    Set rs = conn.Execute("SELECT * FROM Books ORDER BY " & _
+        "Title")
+
+    ' Save the data into a DOMDocument.
+    Set dom_document = New DOMDocument
+    rs.Save dom_document, adPersistXML
+
+    rs.Close
+    conn.Close
+
+    ' Save the XML data into an XML file.
+    db_name = Replace$(db_name, ".mdb", ".xml")
+    dom_document.Save db_name
+    MsgBox "Now move the XML file to a HTTP site."
+End Sub
+
+ 
+After you create the XML file, copy it to your Web server. (For testing purposes, you can also connect to the document on your file system.)
+
+Then when you click the "Get XML Data" button, the program uses the following code to read the XML data from the 
