@@ -45,3 +45,26 @@ End Sub
 After you create the XML file, copy it to your Web server. (For testing purposes, you can also connect to the document on your file system.)
 
 Then when you click the "Get XML Data" button, the program uses the following code to read the XML data from the 
+Private Sub cmdGetXmlData_Click()
+Dim rs As ADODB.Recordset
+Dim i As Integer
+
+    Set rs = New ADODB.Recordset
+    rs.Open txtUrl.Text, "Provider=MSPersist;", _
+         adOpenStatic, adLockReadOnly
+
+    rs.MoveLast ' Can find little errors that can crop up.
+    rs.MoveFirst
+
+    Debug.Print "********************"
+    Do Until rs.EOF
+        For i = 0 To rs.Fields.Count - 1
+            Debug.Print rs.Fields(i) & " ";
+        Next i
+        Debug.Print
+        rs.MoveNext
+    Loop
+
+    rs.Close
+    MsgBox "Ok"
+End Sub
